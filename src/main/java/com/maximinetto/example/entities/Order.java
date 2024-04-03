@@ -1,9 +1,8 @@
 package com.maximinetto.example.entities;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 import java.time.Instant;
-
-import org.hibernate.validator.constraints.UUID;
 
 import com.maximinetto.example.enums.OrderStatus;
 
