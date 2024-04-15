@@ -15,6 +15,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -47,4 +48,11 @@ public class User {
   @JoinColumn(name="address_id")
   private Address address;
 
+  @Override
+  public String toString() {
+    return "User [id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", email=" + email + ", password="
+        + password + ", address=" + address + "]";
+  }
+
+  
 }

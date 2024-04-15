@@ -3,7 +3,6 @@ package com.maximinetto.example.services;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.KeysetScrollPosition;
@@ -12,14 +11,16 @@ import org.springframework.data.domain.ScrollPosition;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Window;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import com.maximinetto.example.dtos.UserDTO;
 import com.maximinetto.example.dtos.UserPaginate;
 import com.maximinetto.example.entities.User;
 import com.maximinetto.example.repositories.UserRepository;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
+@Slf4j
 public class UserService {
 
   private final UserRepository userRepository;
@@ -43,13 +44,27 @@ public class UserService {
     return users.stream().collect(Collectors.toList());
   }
 
-  public User createUser(UserDTO userDTO) {
-    final var user = User.builder()
+  public User createUser(final UserDTO userDTO) {
+    var user = User.builder()
+        .id(userDTO.id())
         .firstName(userDTO.firstName())
         .lastName(userDTO.lastName())
         .email(userDTO.email())
         .password(userDTO.password())
         .build();
+
+    if(user.getId() != null) {
+      user = userRepository.findById(user.getId()).map((User userDB) -> {
+        userDB.setFirstName(userDTO.firstName());
+        userDB.setLastName(userDTO.lastName());
+        userDB.setEmail(userDTO.email());
+        userDB.setPassword(userDTO.password());
+        return userDB;
+      }).orElse(user);
+      
+    }
+
+    log.info("User: {}", user);
 
     return userRepository.save(user);
   }
