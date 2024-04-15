@@ -15,19 +15,21 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 public class SecurityConfiguration {
-  
-  @Bean
-  public PasswordEncoder encoder(){
-    return new BCryptPasswordEncoder();
-  }  
 
   @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-      http.csrf(AbstractHttpConfigurer::disable)
-          .authorizeHttpRequests(authorizationManagerRequestMatcherRegistry -> authorizationManagerRequestMatcherRegistry.requestMatchers("/**").authenticated())
-          .httpBasic(Customizer.withDefaults())
-          .sessionManagement(httpSecuritySessionManagementConfigurer -> httpSecuritySessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-          .addFilterBefore(new AuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
-        return http.build();
-    }
+  public PasswordEncoder encoder() {
+    return new BCryptPasswordEncoder();
+  }
+
+  @Bean
+  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    http.csrf(AbstractHttpConfigurer::disable)
+        .authorizeHttpRequests(authorizationManagerRequestMatcherRegistry -> authorizationManagerRequestMatcherRegistry
+            .requestMatchers("/**").authenticated())
+        .httpBasic(Customizer.withDefaults())
+        .sessionManagement(httpSecuritySessionManagementConfigurer -> httpSecuritySessionManagementConfigurer
+            .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .addFilterBefore(new AuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+    return http.build();
+  }
 }

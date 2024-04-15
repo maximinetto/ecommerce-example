@@ -12,16 +12,13 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Getter
-@Setter
+@Data
 @Entity
 @Table(name = "users")
 public class User {
@@ -47,12 +44,6 @@ public class User {
   @OneToOne(cascade = CascadeType.ALL)
   @JoinColumn(name="address_id")
   private Address address;
-
-  @Override
-  public String toString() {
-    return "User [id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", email=" + email + ", password="
-        + password + ", address=" + address + "]";
-  }
 
   
 }

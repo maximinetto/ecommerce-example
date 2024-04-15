@@ -10,24 +10,29 @@ import org.springframework.data.domain.Limit;
 import org.springframework.data.domain.ScrollPosition;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Window;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.maximinetto.example.dtos.UserDTO;
+import com.maximinetto.example.dtos.UserDTOResponse;
 import com.maximinetto.example.dtos.UserPaginate;
 import com.maximinetto.example.entities.User;
+import com.maximinetto.example.mappers.UserMapper;
 import com.maximinetto.example.repositories.UserRepository;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class UserService {
 
   private final UserRepository userRepository;
 
-  public UserService(UserRepository userRepository) {
-    this.userRepository = userRepository;
-  }
+  private final PasswordEncoder passwordEncoder;
+
+  private final UserMapper userMapper;
 
   public Collection<User> paginateUsers(UserPaginate paginatedFields) {
     Map<String, Object> map = new HashMap<>();
@@ -44,14 +49,8 @@ public class UserService {
     return users.stream().collect(Collectors.toList());
   }
 
-  public User createUser(final UserDTO userDTO) {
-    var user = User.builder()
-        .id(userDTO.id())
-        .firstName(userDTO.firstName())
-        .lastName(userDTO.lastName())
-        .email(userDTO.email())
-        .password(userDTO.password())
-        .build();
+  public UserDTOResponse saveUser(final UserDTO userDTO) {
+    var user = userMapper.toEntity(userDTO);
 
     if(user.getId() != null) {
       user = userRepository.findById(user.getId()).map((User userDB) -> {
@@ -60,13 +59,17 @@ public class UserService {
         userDB.setEmail(userDTO.email());
         userDB.setPassword(userDTO.password());
         return userDB;
-      }).orElse(user);
-      
+      }).orElse(user); 
     }
+
+    String hashedPassword = passwordEncoder.encode(user.getPassword());
+
+    user.setPassword(hashedPassword);
 
     log.info("User: {}", user);
 
-    return userRepository.save(user);
+    var userSaved = userRepository.save(user);
+    return userMapper.toDTOResponse(userSaved);
   }
 
 }
