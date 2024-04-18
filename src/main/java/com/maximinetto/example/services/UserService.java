@@ -22,10 +22,8 @@ import com.maximinetto.example.mappers.UserMapper;
 import com.maximinetto.example.repositories.UserRepository;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @Service
-@Slf4j
 @RequiredArgsConstructor
 public class UserService {
 
@@ -49,6 +47,11 @@ public class UserService {
     Window<User> users = userRepository.findBy(position, sort, _limit);
 
     return users.stream().collect(Collectors.toList());
+  }
+
+  public UserDTOResponse getUser(Long id) throws UserNotFoundException{
+    return userRepository.findById(id).map(userMapper::toDTOResponse)
+        .orElseThrow(() -> new UserNotFoundException("No se ha encontrado el usuario con id: " + id));
   }
 
   public UserDTOResponse saveUser(final UserDTO userDTO) {
@@ -76,11 +79,6 @@ public class UserService {
     var user = userRepository.findById(id)
         .orElseThrow(() -> new UserNotFoundException("No se ha encontrado el usuario con id: " + id));
     userRepository.delete(user);
-  }
-
-  public UserDTOResponse getUser(Long id) throws UserNotFoundException{
-    return userRepository.findById(id).map(userMapper::toDTOResponse)
-        .orElseThrow(() -> new UserNotFoundException("No se ha encontrado el usuario con id: " + id));
   }
 
 }

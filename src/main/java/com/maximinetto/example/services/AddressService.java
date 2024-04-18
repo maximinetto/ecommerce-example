@@ -8,7 +8,6 @@ import com.maximinetto.example.dtos.UserDTOResponse;
 import com.maximinetto.example.entities.Address;
 import com.maximinetto.example.exceptions.UserNotFoundException;
 import com.maximinetto.example.mappers.UserMapper;
-import com.maximinetto.example.repositories.AddressRepository;
 import com.maximinetto.example.repositories.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -18,8 +17,6 @@ import lombok.RequiredArgsConstructor;
 public class AddressService {
 
   private final UserRepository userRepository;
-
-  private final AddressRepository addressRepository;
 
   private final UserMapper userMapper;
 
