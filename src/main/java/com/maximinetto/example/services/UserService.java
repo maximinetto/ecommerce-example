@@ -68,16 +68,19 @@ public class UserService {
 
     user.setPassword(hashedPassword);
 
-    log.info("User: {}", user);
-
     var userSaved = userRepository.save(user);
     return userMapper.toDTOResponse(userSaved);
   }
 
-  public void deleteUser(final Long id) throws UserNotFoundException{
+  public void deleteUser(final Long id) throws UserNotFoundException {
     var user = userRepository.findById(id)
         .orElseThrow(() -> new UserNotFoundException("No se ha encontrado el usuario con id: " + id));
     userRepository.delete(user);
+  }
+
+  public UserDTOResponse getUser(Long id) throws UserNotFoundException{
+    return userRepository.findById(id).map(userMapper::toDTOResponse)
+        .orElseThrow(() -> new UserNotFoundException("No se ha encontrado el usuario con id: " + id));
   }
 
 }

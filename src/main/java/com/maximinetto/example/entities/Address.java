@@ -36,15 +36,15 @@ public class Address {
   @Basic(optional = false)
   private String postcode;
 
-  @Column(name="street_name")
+  @Column(nullable = false)
   @Basic(optional = false)
   private String streetName;
 
-  @Column(name="street_number")
+  @Column(nullable = false)
   @Basic(optional = false)
   private Integer streetNumber;
 
-  @Column(nullable = false)
+  @Column(nullable = true)
   @Basic(optional = true)
   private String apto;
 

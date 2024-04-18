@@ -19,7 +19,6 @@ import com.maximinetto.example.entities.User;
 import com.maximinetto.example.exceptions.UserNotFoundException;
 import com.maximinetto.example.services.UserService;
 
-
 @RestController()
 @RequestMapping("/users")
 public class UserController {
@@ -34,6 +33,12 @@ public class UserController {
   public Collection<User> getUserPaginate(UserPaginate paginate){
     return userService.paginateUsers(paginate);
   }
+
+  @GetMapping("/{id}")
+  public UserDTOResponse getUser(@PathVariable Long id) throws UserNotFoundException {
+      return userService.getUser(id);
+  }
+  
 
   @PutMapping()
   @ResponseStatus(code = HttpStatus.OK)
