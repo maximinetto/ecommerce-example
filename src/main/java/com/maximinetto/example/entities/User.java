@@ -41,7 +41,7 @@ public class User {
   @Basic(optional = false)
   private String password;
 
-  @OneToOne(cascade = CascadeType.ALL)
+  @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
   @JoinColumn(name="address_id")
   private Address address;
 
