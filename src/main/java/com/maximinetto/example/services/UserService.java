@@ -17,6 +17,7 @@ import com.maximinetto.example.dtos.UserDTO;
 import com.maximinetto.example.dtos.UserDTOResponse;
 import com.maximinetto.example.dtos.UserPaginate;
 import com.maximinetto.example.entities.User;
+import com.maximinetto.example.exceptions.UserNotFoundException;
 import com.maximinetto.example.mappers.UserMapper;
 import com.maximinetto.example.repositories.UserRepository;
 
@@ -41,7 +42,8 @@ public class UserService {
     paginatedFields.getLastName().ifPresent((_lastName) -> map.put("lastName", _lastName));
 
     KeysetScrollPosition position = map.isEmpty() ? ScrollPosition.keyset() : ScrollPosition.forward(map);
-    String[] fields = map.isEmpty() ? new String[]{"firstName", "lastName", "id"}: map.keySet().toArray(new String[map.size()]);
+    String[] fields = map.isEmpty() ? new String[] { "firstName", "lastName", "id" }
+        : map.keySet().toArray(new String[map.size()]);
     Sort sort = Sort.by(Sort.Direction.ASC, fields);
     Limit _limit = Limit.of(paginatedFields.getLimit().orElse(10));
     Window<User> users = userRepository.findBy(position, sort, _limit);
@@ -52,14 +54,14 @@ public class UserService {
   public UserDTOResponse saveUser(final UserDTO userDTO) {
     var user = userMapper.toEntity(userDTO);
 
-    if(user.getId() != null) {
+    if (user.getId() != null) {
       user = userRepository.findById(user.getId()).map((User userDB) -> {
         userDB.setFirstName(userDTO.firstName());
         userDB.setLastName(userDTO.lastName());
         userDB.setEmail(userDTO.email());
         userDB.setPassword(userDTO.password());
         return userDB;
-      }).orElse(user); 
+      }).orElse(user);
     }
 
     String hashedPassword = passwordEncoder.encode(user.getPassword());
@@ -70,6 +72,12 @@ public class UserService {
 
     var userSaved = userRepository.save(user);
     return userMapper.toDTOResponse(userSaved);
+  }
+
+  public void deleteUser(final Long id) throws UserNotFoundException{
+    var user = userRepository.findById(id)
+        .orElseThrow(() -> new UserNotFoundException("No se ha encontrado el usuario con id: " + id));
+    userRepository.delete(user);
   }
 
 }
