@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.KeysetScrollPosition;
 import org.springframework.data.domain.Limit;
 import org.springframework.data.domain.ScrollPosition;
@@ -14,9 +15,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.maximinetto.example.dtos.UserDTO;
-import com.maximinetto.example.dtos.UserDTOResponse;
 import com.maximinetto.example.dtos.UserPaginate;
 import com.maximinetto.example.entities.User;
+import com.maximinetto.example.exceptions.UserAlreadyExistsException;
 import com.maximinetto.example.exceptions.UserNotFoundException;
 import com.maximinetto.example.mappers.UserMapper;
 import com.maximinetto.example.repositories.UserRepository;
@@ -33,7 +34,7 @@ public class UserService {
 
   private final UserMapper userMapper;
 
-  public Collection<User> paginateUsers(UserPaginate paginatedFields) {
+  public Collection<UserDTO> paginateUsers(UserPaginate paginatedFields) {
     Map<String, Object> map = new HashMap<>();
     paginatedFields.getId().ifPresent((_id) -> map.put("id", _id));
     paginatedFields.getFirstName().ifPresent((_firsName) -> map.put("firstName", _firsName));
@@ -46,33 +47,32 @@ public class UserService {
     Limit _limit = Limit.of(paginatedFields.getLimit().orElse(10));
     Window<User> users = userRepository.findBy(position, sort, _limit);
 
-    return users.stream().collect(Collectors.toList());
+    return users.stream().map(userMapper::toDTO).collect(Collectors.toList());
   }
 
-  public UserDTOResponse getUser(Long id) throws UserNotFoundException{
-    return userRepository.findById(id).map(userMapper::toDTOResponse)
+  public UserDTO getUser(Long id) throws UserNotFoundException {
+    return userRepository.findById(id).map(userMapper::toDTO)
         .orElseThrow(() -> new UserNotFoundException("No se ha encontrado el usuario con id: " + id));
   }
 
-  public UserDTOResponse saveUser(final UserDTO userDTO) {
+  public UserDTO saveUser(final UserDTO userDTO) throws UserAlreadyExistsException{
     var user = userMapper.toEntity(userDTO);
 
     if (user.getId() != null) {
-      user = userRepository.findById(user.getId()).map((User userDB) -> {
-        userDB.setFirstName(userDTO.firstName());
-        userDB.setLastName(userDTO.lastName());
-        userDB.setEmail(userDTO.email());
-        userDB.setPassword(userDTO.password());
-        return userDB;
-      }).orElse(user);
+      user = userRepository.findById(user.getId()).map((User userDB) -> userMapper.bindEntity(userDTO, userDB))
+          .orElse(user);
     }
 
     String hashedPassword = passwordEncoder.encode(user.getPassword());
 
     user.setPassword(hashedPassword);
 
-    var userSaved = userRepository.save(user);
-    return userMapper.toDTOResponse(userSaved);
+    try {
+      var userSaved = userRepository.save(user);
+      return userMapper.toDTO(userSaved);
+    } catch (DataIntegrityViolationException exception) {
+      throw new UserAlreadyExistsException("El usuario con email " + userDTO.email() + " ya existe en el sistema");
+    }
   }
 
   public void deleteUser(final Long id) throws UserNotFoundException {

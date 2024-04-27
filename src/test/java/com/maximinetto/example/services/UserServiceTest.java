@@ -8,10 +8,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.maximinetto.example.entities.User;
+import com.maximinetto.example.exceptions.UserAlreadyExistsException;
 import com.maximinetto.example.mappers.UserMapper;
 import com.maximinetto.example.repositories.UserRepository;
 
@@ -35,7 +35,7 @@ public class UserServiceTest {
   }
 
   @Test
-  public void shouldCreateAnUserSuccessfullyWithoutID(){
+  public void shouldCreateAnUserSuccessfullyWithoutID() throws UserAlreadyExistsException{
     var user = User.builder()
                    .firstName("Maximiliano")
                    .lastName("Minetto")
@@ -53,7 +53,7 @@ public class UserServiceTest {
                   
     Mockito.when(userMockRepository.save(any(User.class))).thenReturn(expectedUser);
       
-    var userDTOExpected = userMapper.toDTOResponse(expectedUser);
+    var userDTOExpected = userMapper.toDTO(expectedUser);
     var userResponse = userService.saveUser(userMapper.toDTO(user)); 
     
     Assertions.assertNotNull(userResponse);
@@ -61,7 +61,7 @@ public class UserServiceTest {
   }
 
   @Test
-  public void shouldCreateAnUserSuccessfullyWithID(){
+  public void shouldCreateAnUserSuccessfullyWithID() throws UserAlreadyExistsException{
     var user = User.builder()
                    .id(2L)
                    .firstName("Maximiliano")
@@ -80,7 +80,7 @@ public class UserServiceTest {
                   
     Mockito.when(userMockRepository.save(any(User.class))).thenReturn(expectedUser);
       
-    var userDTOExpected = userMapper.toDTOResponse(expectedUser);
+    var userDTOExpected = userMapper.toDTO(expectedUser);
     var userResponse = userService.saveUser(userMapper.toDTO(user)); 
     
     Assertions.assertNotNull(userResponse);

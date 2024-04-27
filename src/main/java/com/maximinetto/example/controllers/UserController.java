@@ -13,9 +13,9 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.maximinetto.example.dtos.UserDTO;
-import com.maximinetto.example.dtos.UserDTOResponse;
 import com.maximinetto.example.dtos.UserPaginate;
 import com.maximinetto.example.entities.User;
+import com.maximinetto.example.exceptions.UserAlreadyExistsException;
 import com.maximinetto.example.exceptions.UserNotFoundException;
 import com.maximinetto.example.services.UserService;
 
@@ -30,19 +30,19 @@ public class UserController {
   }
 
   @GetMapping
-  public Collection<User> getUserPaginate(UserPaginate paginate){
+  public Collection<UserDTO> getUserPaginate(UserPaginate paginate){
     return userService.paginateUsers(paginate);
   }
 
   @GetMapping("/{id}")
-  public UserDTOResponse getUser(@PathVariable Long id) throws UserNotFoundException {
+  public UserDTO getUser(@PathVariable Long id) throws UserNotFoundException {
       return userService.getUser(id);
   }
   
 
   @PutMapping()
   @ResponseStatus(code = HttpStatus.OK)
-  public UserDTOResponse saveUser(@RequestBody UserDTO userDTO){
+  public UserDTO saveUser(@RequestBody UserDTO userDTO) throws UserAlreadyExistsException{
     return userService.saveUser(userDTO);
   }
 

@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.maximinetto.example.dtos.UserDTOResponse;
+import com.maximinetto.example.dtos.UserDTO;
 import com.maximinetto.example.entities.Address;
 import com.maximinetto.example.exceptions.UserNotFoundException;
 import com.maximinetto.example.services.AddressService;
@@ -24,7 +24,7 @@ public class AddressController {
 
   @PutMapping()
   @ResponseStatus(code = HttpStatus.OK)
-  public UserDTOResponse saveAddress(@PathVariable Long id, @RequestBody Address address) throws UserNotFoundException {
+  public UserDTO saveAddress(@PathVariable Long id, @RequestBody Address address) throws UserNotFoundException {
     return addressService.saveAddress(id, address);
   } 
 }

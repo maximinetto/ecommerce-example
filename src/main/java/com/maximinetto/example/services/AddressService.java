@@ -4,7 +4,7 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
-import com.maximinetto.example.dtos.UserDTOResponse;
+import com.maximinetto.example.dtos.UserDTO;
 import com.maximinetto.example.entities.Address;
 import com.maximinetto.example.exceptions.UserNotFoundException;
 import com.maximinetto.example.mappers.UserMapper;
@@ -20,7 +20,7 @@ public class AddressService {
 
   private final UserMapper userMapper;
 
-  public UserDTOResponse saveAddress(Long userId, Address address) throws UserNotFoundException {
+  public UserDTO saveAddress(Long userId, Address address) throws UserNotFoundException {
     var user = userRepository.findByIdWithAddress(userId)
         .orElseThrow(() -> new UserNotFoundException("No se ha encontrado el usuario con id: " + userId));
 
@@ -36,6 +36,6 @@ public class AddressService {
 
     user.setAddress(addressToSave);
     var userSaved = userRepository.save(user);
-    return userMapper.toDTOResponse(userSaved);
+    return userMapper.toDTO(userSaved);
   }
 }

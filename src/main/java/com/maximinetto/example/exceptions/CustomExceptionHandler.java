@@ -15,6 +15,11 @@ public class CustomExceptionHandler {
    return buildResponseEntity(new ApiValidationError(HttpStatus.NOT_FOUND, exception.getMessage(), exception));
   }
 
+  @ExceptionHandler(UserAlreadyExistsException.class)
+  public ResponseEntity<Object> handleEmailAlreadyExist(UserAlreadyExistsException exception){
+    return buildResponseEntity(new ApiValidationError(HttpStatus.CONFLICT, exception.getMessage(), exception));
+  }
+
   private ResponseEntity<Object> buildResponseEntity(ApiValidationError apiValidationError) {
     return new ResponseEntity<>(apiValidationError, apiValidationError.getStatus());
   }

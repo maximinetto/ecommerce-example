@@ -35,11 +35,15 @@ public class User {
   @Basic(optional = false)
   private String lastName;
 
-  @Basic(optional = false)  
+  @Basic(optional = false)
+  @Column(unique = true)  
   private String email;
 
   @Basic(optional = false)
   private String password;
+
+  @Basic(optional = true)
+  private String phoneNumber;
 
   @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
   @JoinColumn(name="address_id")
